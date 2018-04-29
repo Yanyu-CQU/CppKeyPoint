@@ -56,15 +56,15 @@ dst_type pointer_cast(src_type src)
 int main()
 {
 	Base base1,base2;
-	//两个对象的虚函数表地址不一样，说明同一类的不同对象，各自有自己的虚函数表！
-	cout << "the address of virtual list of Base class" << (int*)&base1 << "-" << (int*)&base2 << endl;
-	int* temp = ((int*)*(int*)&base2);
+	int* temp = ((int*)*(int*)&base2);//更正：这里是虚函数表指针
 	//同一类的不同对象，虽然有各自的虚函数表，但是表里面存的虚函数地址是一样的
-	cout << "the address of the 3 functions in virtual list of Base class" << temp << "-" << temp+1 << "-" << temp+2 << endl;
+	//更正，这里是虚函数表指针，但是因为是int型指针，因此才每次跳过4字节，并不是存放的虚函数指针
+	cout << "the address of virtual list" << temp << endl;
 	temp = ((int*)*(int*)&base1);
-	cout << "the address of the 3 functions in virtual list of Base class" << temp << "-" << temp+1 << "-" << temp+2 << endl;
-	//temp是指针变量，它的值拷贝自虚函数表，虚函数表记录的虚函数地址，其实是逻辑地址（更正：代码段地址在数据段表示），这个地方转为函数指针时，MMU会把逻辑地址转为代码段表示方式
-	Fun f_fun = (Fun)*temp;
+	cout << "the address of virtual list" << temp << endl;
+	//temp是虚函数表地址，不是虚函数地址！
+	//虚函数表记录的虚函数地址，其实是逻辑地址（更正：代码段地址在数据段表示），这个地方转为函数指针时，MMU会把逻辑地址转为代码段表示方式
+	Fun f_fun = (Fun)*temp;//这里是解引用虚函数表，取出里面存放的虚函数指针
 	cout << "ues the first fun by address: " << endl;
 	f_fun();
 	cout << "ues the second fun by first address + 1: " << endl;
@@ -75,10 +75,8 @@ int main()
 	f_fun();
 	
 	Der der1;
-	cout << "the address of virtual list of Der class" << (int*)&der1 << endl;
+	//Der的虚函数表地址
 	temp = (int*)*(int*)&der1;
-	//虽然子类只重写了g(),但是这里三个地址都是不一样的！也就是说，子类把f,h两个虚函数，一模一样的拷贝了，把g重新写了之后，替换了原本g的位置
-	cout << "the address of the 3 functions in virtual list of Der class" << temp << "-" << temp+1 << "-" << temp+2 << endl;
 	f_fun = (Fun)*temp;
 	cout << "ues the first fun of Der by address: " << endl;
 	f_fun();
@@ -88,10 +86,14 @@ int main()
 	f_fun = (Fun)*(temp + 2);
 	cout << "ues the third fun of Der by address: " << endl;
 	f_fun();
-	if (((int*)*(int*)&der1) != ((int*)*(int*)&base1))
+	if (*((int*)*(int*)&der1) != *((int*)*(int*)&base1))
 	{
 		cout << "although Der doesn't override the f(), but Der copy the f() in code memory" << endl;
 	}
+	else
+	{
+		cout << "Der does'n copy f()!!!!" << endl;
+	} 
 	//三个指针一摸一样
 	int * pI1 = union_cast<int*>(&Base::i);
 	int * pI2 = union_cast<int*>(&Der::i);
@@ -110,7 +112,7 @@ int main()
 	}
 	else
 	{
-		cout << "It's not same as virtual function, Der will not copy a usual function'" << endl;
+		cout << "It's same as virtual function, Der will not copy a usual function'" << endl;
 	}
 	//小实验：
 	/*
@@ -120,9 +122,9 @@ int main()
 	/*
 	新的推测。把22220000当作物理地址，映射到数据段，再映射到代码段，操作系统保护实地址
 	*/
-	int* testAddress = (int*)(void*)22220000;
+	/*int* testAddress = (int*)(void*)22220000;
 	f_fun = (Fun)*testAddress;
-	system("pause");
+	system("pause");*/ 
 
 	return 0;
 }  
