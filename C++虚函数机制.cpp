@@ -57,7 +57,7 @@ int main()
 {
 	Base base1,base2;
 	int* temp = ((int*)*(int*)&base2);//更正：这里是虚函数表指针
-	//同一类的不同对象，虽然有各自的虚函数表，但是表里面存的虚函数地址是一样的
+	//同一类的不同对象，共享同一个虚函数表
 	//更正，这里是虚函数表指针，但是因为是int型指针，因此才每次跳过4字节，并不是存放的虚函数指针
 	cout << "the address of virtual list" << temp << endl;
 	temp = ((int*)*(int*)&base1);
