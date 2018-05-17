@@ -13,7 +13,7 @@ void thread_task1(int n)
 	for (int i = 0; i < 5; i++)
 	{
 		cout << "thread task¡¾1¡¿: " << n << endl;
-		this_thread::sleep_for(chrono::milliseconds(10));
+		this_thread::sleep_for(chrono::milliseconds(100));
 	}
 		
 }
@@ -24,7 +24,7 @@ void thread_task2(int& n)
 	{
 		cout << "thread task¡¾2¡¿: " << n << endl;
 		++n;
-		this_thread::sleep_for(chrono::milliseconds(10));
+		this_thread::sleep_for(chrono::milliseconds(100));
 	}
 		
 }
