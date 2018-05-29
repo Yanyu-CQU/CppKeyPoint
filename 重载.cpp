@@ -5,11 +5,11 @@ int g = 1;
 class A 
 {
 public:
-	int function ()
+	virtual int function ()
 	{
 		cout << "A normal" << endl;
 	}
-
+public:
 	int function () const
 	{
 		cout << "A const" << endl;
@@ -19,16 +19,18 @@ public:
 
 class B : public A
 {
-public:
+private:
 	virtual int function()
 	{
 		cout << "B normal" << endl;
 	}
+public:
 	int function(int i) const
 	{
 		cout << "B const:" << i << endl;
 	}
 };
+
 int f (int i)
 {
 	cout << "int" << endl;
@@ -46,17 +48,20 @@ int main()
 	
 	const A ca;
 	A a;
-	a.function();//normal
+	//a.function();//normal
 	ca.function();//const
 	
 	const B cb;
 	B b;
+	A* ab = &b;
+	ab->function(); //B normal ignore "private" 
 	b.A::function();//A normal
-	b.function();//B normal
+	//b.function();//B normal
 	b.function(1);//B const
 	//cb.function();
 	cb.A::function();//A normal
 	cb.function(1);//B const
+	
 	return 0;
 }
 double f(double i)
